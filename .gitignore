@@ -43,3 +43,12 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Sensitive API keys and secrets
+lib/constants/secrets.dart
+
+# Optional: Uncomment the following lines if you want to exclude Firebase config files
+# (Note: These are typically committed as they're needed for the app to work,
+# but they contain client-side API keys restricted by package/bundle ID)
+# android/app/google-services.json
+# ios/Runner/GoogleService-Info.plist

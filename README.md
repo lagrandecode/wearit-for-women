@@ -1,6 +1,5 @@
 # Wearit
-
-A Flutter application for fashion and style.
+Wearit is a fashion and style application that uses AI to generate personalized outfit recommendations based on user photos and preferences. The architecture is designed to be secure, fast, and scalable.
 
 ## Getting Started
 
