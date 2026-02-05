@@ -55,6 +55,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
   flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -102,3 +103,25 @@ flutter_launcher_icons:
   android: true
   ios: true
   image_path: "assets/images/1024.png"
+
+flutter_native_splash:
+  # This package generates native code to customize Flutter's default white native splash screen
+  # with background color and splash image.
+  # More documentation at https://pub.dev/packages/flutter_native_splash
+
+  color: "#FFFFFF"  # Default background color (light mode)
+  color_dark: "#000000"  # Background color for dark mode
+  
+  image: assets/images/wearit.png  # Splash image
+  image_dark: assets/images/wearit.png  # Same image for dark mode
+  
+  # Android 12+ specific settings
+  android_12:
+    image: assets/images/wearit.png
+    image_dark: assets/images/wearit.png
+    color: "#FFFFFF"
+    color_dark: "#000000"
+  
+  # iOS specific settings
+  ios: true
+  android: true
