@@ -98,8 +98,16 @@ class _VertexAITestScreenState extends State<VertexAITestScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Vertex AI Test'),
-        backgroundColor: const Color(AppConstants.primaryColor),
+        title: Text(
+          'Vertex AI Test',
+          style: GoogleFonts.spaceGrotesk(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: SafeArea(
         child: Padding(
