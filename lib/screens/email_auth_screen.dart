@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/auth_service.dart';
 import '../constants/app_constants.dart';
+import '../widgets/shimmer_loading.dart';
 import 'home_screen.dart';
 
 class EmailAuthScreen extends StatefulWidget {
@@ -194,12 +195,16 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
                       ),
                     ),
                     child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ? ShimmerLoading(
+                            baseColor: Colors.white.withOpacity(0.3),
+                            highlightColor: Colors.white.withOpacity(0.6),
+                            child: Container(
+                              height: 20,
+                              width: 20,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
                             ),
                           )
                         : Text(

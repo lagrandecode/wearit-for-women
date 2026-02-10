@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/vertex_ai_service.dart';
 import '../constants/app_constants.dart';
+import '../widgets/shimmer_loading.dart';
 
 class OutfitSwapScreen extends StatefulWidget {
   const OutfitSwapScreen({super.key});
@@ -279,12 +280,16 @@ Be specific about:
                   ),
                 ),
                 child: _isLoading
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ? ShimmerLoading(
+                        baseColor: Colors.white.withOpacity(0.3),
+                        highlightColor: Colors.white.withOpacity(0.6),
+                        child: Container(
+                          height: 20,
+                          width: 20,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
                       )
                     : Text(

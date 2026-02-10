@@ -6,6 +6,7 @@ import '../widgets/animated_google_button.dart';
 import '../widgets/dancing_text.dart';
 import '../services/auth_service.dart';
 import '../constants/app_constants.dart';
+import '../widgets/shimmer_loading.dart';
 import 'email_auth_screen.dart';
 import 'home_screen.dart';
 
@@ -102,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen>
             )
           else
             const Center(
-              child: CircularProgressIndicator(),
+              child: CardShimmer(width: double.infinity, height: double.infinity),
             ),
           // Content overlay
           SafeArea(
