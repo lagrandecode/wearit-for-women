@@ -75,6 +75,23 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  String _getTimeBasedGreeting() {
+    final hour = DateTime.now().hour;
+    final user = FirebaseAuth.instance.currentUser;
+    final userName = user?.displayName ?? 'user';
+    
+    String greeting;
+    if (hour < 12) {
+      greeting = 'Good morning';
+    } else if (hour < 17) {
+      greeting = 'Good afternoon';
+    } else {
+      greeting = 'Good evening';
+    }
+    
+    return '$greeting, $userName!';
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -115,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   // Welcome section
                   Text(
-                    'Welcome, ${user?.displayName ?? 'User'}!',
+                    _getTimeBasedGreeting(),
                     style: GoogleFonts.spaceGrotesk(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
