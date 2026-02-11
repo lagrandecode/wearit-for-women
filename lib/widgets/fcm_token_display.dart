@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/notification_service.dart';
+import 'floating_message.dart';
 
 /// Widget to display FCM token for testing purposes
 /// Remove this widget from production builds
@@ -40,11 +41,13 @@ class _FCMTokenDisplayState extends State<FCMTokenDisplay> {
     if (_token != null) {
       // Copy to clipboard
       // Note: You'll need to add clipboard package or use a different method
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Token copied! Check console for full token.'),
-          duration: const Duration(seconds: 2),
-        ),
+      FloatingMessage.show(
+        context,
+        message: 'Token copied! Check console for full token.',
+        icon: Icons.check_circle,
+        backgroundColor: Colors.green,
+        iconColor: Colors.white,
+        duration: const Duration(seconds: 2),
       );
       print('FCM Token (copy this): $_token');
     }

@@ -7,6 +7,7 @@ import '../widgets/dancing_text.dart';
 import '../services/auth_service.dart';
 import '../constants/app_constants.dart';
 import '../widgets/shimmer_loading.dart';
+import '../widgets/floating_message.dart';
 import 'email_auth_screen.dart';
 import 'home_screen.dart';
 
@@ -216,11 +217,12 @@ class _LoginScreenState extends State<LoginScreen>
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Apple Sign-In failed: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
+        FloatingMessage.show(
+          context,
+          message: 'Apple Sign-In failed: ${e.toString()}',
+          icon: Icons.error_outline,
+          backgroundColor: Colors.red,
+          iconColor: Colors.white,
         );
       }
     }
@@ -239,12 +241,13 @@ class _LoginScreenState extends State<LoginScreen>
       }
     } catch (e) {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Google Sign-In failed: ${e.toString()}'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 5),
-          ),
+        FloatingMessage.show(
+          context,
+          message: 'Google Sign-In failed: ${e.toString()}',
+          icon: Icons.error_outline,
+          backgroundColor: Colors.red,
+          iconColor: Colors.white,
+          duration: const Duration(seconds: 5),
         );
       }
     }

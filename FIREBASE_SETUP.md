@@ -19,6 +19,12 @@ This guide will help you configure Firebase to save planned outfits data.
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Users collection - users can only access their own document
+    match /users/{userId} {
+      // Allow users to read and write only their own user document
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
     // Planned outfits collection
     match /planned_outfits/{outfitId} {
       // Allow users to read their own outfits

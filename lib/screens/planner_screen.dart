@@ -8,6 +8,7 @@ import '../constants/app_constants.dart';
 import '../models/planned_outfit.dart';
 import '../services/planner_service.dart';
 import '../widgets/shimmer_loading.dart';
+import '../widgets/floating_message.dart';
 
 class PlannerScreen extends StatefulWidget {
   const PlannerScreen({super.key});
@@ -44,8 +45,12 @@ class _PlannerScreenState extends State<PlannerScreen> with SingleTickerProvider
 
   Future<void> _pickImage(ImageSource source) async {
     if (_selectedDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a date first')),
+      FloatingMessage.show(
+        context,
+        message: 'Please select a date first',
+        icon: Icons.info_outline,
+        backgroundColor: Colors.orange,
+        iconColor: Colors.white,
       );
       return;
     }
@@ -99,8 +104,12 @@ class _PlannerScreenState extends State<PlannerScreen> with SingleTickerProvider
         }
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to pick image: $e')),
+      FloatingMessage.show(
+        context,
+        message: 'Failed to pick image: $e',
+        icon: Icons.error_outline,
+        backgroundColor: Colors.red,
+        iconColor: Colors.white,
       );
     }
   }
@@ -156,18 +165,23 @@ class _PlannerScreenState extends State<PlannerScreen> with SingleTickerProvider
       _pendingImages.clear();
     });
     
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Outfit planned for ${outfit.formattedTime}'),
-        backgroundColor: Colors.green,
-      ),
+    FloatingMessage.show(
+      context,
+      message: 'Outfit planned for ${outfit.formattedTime}',
+      icon: Icons.check_circle,
+      backgroundColor: Colors.green,
+      iconColor: Colors.white,
     );
   }
 
   Future<void> _showImageSourceDialog() async {
     if (_selectedDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a date first')),
+      FloatingMessage.show(
+        context,
+        message: 'Please select a date first',
+        icon: Icons.info_outline,
+        backgroundColor: Colors.orange,
+        iconColor: Colors.white,
       );
       return;
     }

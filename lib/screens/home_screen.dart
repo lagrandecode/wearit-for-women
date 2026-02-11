@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:confetti/confetti.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:video_player/video_player.dart';
+import 'dart:math';
 import '../services/auth_service.dart';
 import '../constants/app_constants.dart';
 import 'login_screen.dart';
@@ -10,19 +14,79 @@ import 'planner_screen.dart';
 import 'rate_my_outfit_screen.dart';
 import 'wardrobe_screen.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late ConfettiController _confettiController;
+  bool _hasShownConfetti = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 4));
+    _checkAndShowConfetti();
+  }
+
+  Future<void> _checkAndShowConfetti() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return; // User not authenticated, skip confetti
+    }
+
+    try {
+      final firestore = FirebaseFirestore.instance;
+      final userDocRef = firestore.collection('users').doc(user.uid);
+      
+      // Check if user has seen confetti
+      final userDoc = await userDocRef.get();
+      final hasSeenConfetti = userDoc.exists && 
+          (userDoc.data()?['hasSeenWelcomeConfetti'] ?? false);
+      
+      if (!hasSeenConfetti) {
+        // Wait a bit for the screen to render
+        await Future.delayed(const Duration(milliseconds: 500));
+        if (mounted) {
+          _confettiController.play();
+          setState(() {
+            _hasShownConfetti = true;
+          });
+          
+          // Mark that confetti has been shown in Firestore
+          await userDocRef.set({
+            'hasSeenWelcomeConfetti': true,
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        }
+      }
+    } catch (e) {
+      debugPrint('Error checking confetti status: $e');
+      // If there's an error, don't show confetti to avoid showing it multiple times
+    }
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
-      body: Column(
+      body: Stack(
         children: [
+          Column(
+            children: [
           // Logo and Notification Header
           Padding(
-            padding: const EdgeInsets.fromLTRB(10.0, 5.0, 24.0, 5.0),
+            padding: const EdgeInsets.fromLTRB(10.0, 5.0, 24.0, 0.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -44,7 +108,7 @@ class HomeScreen extends StatelessWidget {
           // Body Content
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.only(left: 24, right: 24),
+              padding: const EdgeInsets.only(left: 24, right: 24, top: 5),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,7 +121,7 @@ class HomeScreen extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 10),
 
                   // AI Stylist Section
                   Row(
@@ -86,16 +150,11 @@ class HomeScreen extends StatelessWidget {
                       scrollDirection: Axis.horizontal,
                       children: [
                         // Make an outfit card (Outfit Swap)
-                        _buildStylistCard(
-                          context,
+                        VideoStylistCard(
+                          videoUrl: 'https://firebasestorage.googleapis.com/v0/b/alausasabi-c35ab.appspot.com/o/outfit3.mp4?alt=media&token=5460c71f-6eaa-435a-9cd2-41e950d36e5c',
                           title: 'Make an outfit',
                           subtitle: 'For any date, occasion and style',
                           icon: Icons.swap_horiz,
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [Color(0xFFFE9ECD), Color(0xFFE91E63)],
-                          ),
                           onTap: () {
                             Navigator.push(
                               context,
@@ -107,16 +166,11 @@ class HomeScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 16),
                         // Rate my outfit card
-                        _buildStylistCard(
-                          context,
+                        VideoStylistCard(
+                          videoUrl: 'https://firebasestorage.googleapis.com/v0/b/alausasabi-c35ab.appspot.com/o/outfit4.mp4?alt=media&token=bd316d4b-b900-44b6-9359-134e3e58d0aa',
                           title: 'Rate my outfit',
                           subtitle: 'Suggest styling tips',
                           icon: Icons.star_rate,
-                          gradient: const LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [Color(0xFF4CAF50), Color(0xFF2E7D32)],
-                          ),
                           onTap: () {
                             Navigator.push(
                               context,
@@ -204,6 +258,28 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: 32),
                 ],
               ),
+            ),
+          ),
+            ],
+          ),
+          // Confetti overlay
+          Align(
+            alignment: Alignment.topCenter,
+            child: ConfettiWidget(
+              confettiController: _confettiController,
+              blastDirection: pi / 2, // Downward direction (90 degrees)
+              maxBlastForce: 5,
+              minBlastForce: 2,
+              emissionFrequency: 0.05,
+              numberOfParticles: 20,
+              gravity: 0.3,
+              colors: const [
+                Color(0xFF9C27B0), // Purple
+                Color(0xFF968200), // Teal
+                Color(0xFFE91E63), // Pink
+                Color(0xFFFFD500), // Emerald green
+                Color(0xFF0047AB), // Cobalt blue
+              ],
             ),
           ),
         ],
@@ -331,6 +407,174 @@ class HomeScreen extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Video-based stylist card widget
+class VideoStylistCard extends StatefulWidget {
+  final String videoUrl;
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const VideoStylistCard({
+    super.key,
+    required this.videoUrl,
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  State<VideoStylistCard> createState() => _VideoStylistCardState();
+}
+
+class _VideoStylistCardState extends State<VideoStylistCard> {
+  VideoPlayerController? _controller;
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeVideo();
+  }
+
+  Future<void> _initializeVideo() async {
+    try {
+      _controller = VideoPlayerController.network(
+        widget.videoUrl,
+        videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+      );
+      _controller!.setLooping(true);
+      _controller!.setVolume(0);
+      await _controller!.initialize();
+      if (mounted) {
+        setState(() {
+          _isInitialized = true;
+        });
+        _controller!.play();
+      }
+    } catch (e) {
+      debugPrint('Error initializing video for ${widget.title}: $e');
+      if (mounted) {
+        setState(() {
+          _isInitialized = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: Container(
+        width: 280,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Stack(
+            children: [
+              // Video background
+              Positioned.fill(
+                child: _isInitialized && _controller != null &&
+                        _controller!.value.isInitialized
+                    ? FittedBox(
+                        fit: BoxFit.cover,
+                        child: SizedBox(
+                          width: _controller!.value.size.width,
+                          height: _controller!.value.size.height,
+                          child: VideoPlayer(_controller!),
+                        ),
+                      )
+                    : Container(
+                        color: Colors.black,
+                      ),
+              ),
+              // Dark overlay for better text readability
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.7),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              // Content
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.title,
+                        style: GoogleFonts.spaceGrotesk(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        widget.subtitle,
+                        style: GoogleFonts.spaceGrotesk(
+                          fontSize: 14,
+                          color: Colors.white.withOpacity(0.9),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Icon in top right
+              Positioned(
+                top: 16,
+                right: 16,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    widget.icon,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
