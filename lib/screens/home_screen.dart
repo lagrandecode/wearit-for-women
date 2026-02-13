@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -13,6 +14,8 @@ import 'outfit_swap_screen.dart';
 import 'planner_screen.dart';
 import 'rate_my_outfit_screen.dart';
 import 'wardrobe_screen.dart';
+import 'settings_screen.dart';
+import '../widgets/glassmorphism_nav_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -24,6 +27,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late ConfettiController _confettiController;
   bool _hasShownConfetti = false;
+  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -98,6 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       body: Stack(
+        fit: StackFit.expand,
         children: [
           Column(
             children: [
@@ -298,6 +303,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 Color(0xFF0047AB), // Cobalt blue
               ],
             ),
+          ),
+          // Glassmorphism Floating Bottom Navigation
+          GlassmorphismNavBar(
+            currentIndex: _currentIndex,
+            context: context,
           ),
         ],
       ),

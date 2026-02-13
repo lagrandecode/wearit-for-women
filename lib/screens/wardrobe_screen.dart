@@ -9,6 +9,7 @@ import '../models/wardrobe_item.dart';
 import '../services/wardrobe_service.dart';
 import '../widgets/floating_message.dart';
 import '../widgets/shimmer_loading.dart';
+import '../widgets/glassmorphism_nav_bar.dart';
 
 class WardrobeScreen extends StatefulWidget {
   const WardrobeScreen({super.key});
@@ -97,18 +98,32 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
           indicatorColor: Colors.black,
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
+      body: Stack(
+        fit: StackFit.expand,
         children: [
-          _buildWardrobeView(),
-          _buildStatisticsView(),
+          TabBarView(
+            controller: _tabController,
+            children: [
+              _buildWardrobeView(),
+              _buildStatisticsView(),
+            ],
+          ),
+          // Floating Action Button positioned above navigation bar
+          Positioned(
+            bottom: MediaQuery.of(context).padding.bottom + 100, // Above the navigation bar
+            right: 20,
+            child: FloatingActionButton.extended(
+              onPressed: () => _showAddItemDialog(context),
+              backgroundColor: const Color(AppConstants.primaryColor),
+              icon: const Icon(Icons.add),
+              label: const Text('Add Item'),
+            ),
+          ),
+          GlassmorphismNavBar(
+            currentIndex: 1,
+            context: context,
+          ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showAddItemDialog(context),
-        backgroundColor: const Color(AppConstants.primaryColor),
-        icon: const Icon(Icons.add),
-        label: const Text('Add Item'),
       ),
     );
   }

@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 import '../services/vertex_ai_service.dart';
 import '../constants/app_constants.dart';
 import '../widgets/shimmer_loading.dart';
+import '../widgets/glassmorphism_nav_bar.dart';
 
 class OutfitSwapScreen extends StatefulWidget {
   const OutfitSwapScreen({super.key});
@@ -189,9 +190,17 @@ Be specific about:
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          SingleChildScrollView(
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+              top: 16.0,
+              bottom: 100.0, // Space for navigation bar
+            ),
+            child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Instructions
@@ -394,7 +403,13 @@ Be specific about:
                 ),
             ],
           ],
-        ),
+            ),
+          ),
+          GlassmorphismNavBar(
+            currentIndex: 2,
+            context: context,
+          ),
+        ],
       ),
     );
   }
