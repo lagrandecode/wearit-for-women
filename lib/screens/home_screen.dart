@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'dart:io';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:confetti/confetti.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:video_player/video_player.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:math';
 import '../services/auth_service.dart';
+import '../services/video_cache_service.dart';
 import '../constants/app_constants.dart';
 import 'login_screen.dart';
 import 'outfit_swap_screen.dart';
@@ -461,9 +464,13 @@ class VideoStylistCard extends StatefulWidget {
   State<VideoStylistCard> createState() => _VideoStylistCardState();
 }
 
-class _VideoStylistCardState extends State<VideoStylistCard> {
+class _VideoStylistCardState extends State<VideoStylistCard> with AutomaticKeepAliveClientMixin {
   VideoPlayerController? _controller;
   bool _isInitialized = false;
+  bool _isLoading = false;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -472,26 +479,61 @@ class _VideoStylistCardState extends State<VideoStylistCard> {
   }
 
   Future<void> _initializeVideo() async {
+    if (_isLoading) return;
+    
+    setState(() {
+      _isLoading = true;
+    });
+
     try {
-      _controller = VideoPlayerController.network(
-        widget.videoUrl,
+      final videoCacheManager = VideoCacheManager();
+      
+      // Get cached video file (downloads if not cached)
+      final videoFile = await videoCacheManager.getCachedVideoFile(widget.videoUrl);
+      
+      // Use file controller with cached video
+      _controller = VideoPlayerController.file(
+        videoFile,
         videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
       );
+      
       _controller!.setLooping(true);
       _controller!.setVolume(0);
       await _controller!.initialize();
+      
       if (mounted) {
         setState(() {
           _isInitialized = true;
+          _isLoading = false;
         });
         _controller!.play();
       }
     } catch (e) {
       debugPrint('Error initializing video for ${widget.title}: $e');
-      if (mounted) {
-        setState(() {
-          _isInitialized = false;
-        });
+      // Fallback to network if caching fails
+      try {
+        _controller = VideoPlayerController.network(
+          widget.videoUrl,
+          videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+        );
+        _controller!.setLooping(true);
+        _controller!.setVolume(0);
+        await _controller!.initialize();
+        if (mounted) {
+          setState(() {
+            _isInitialized = true;
+            _isLoading = false;
+          });
+          _controller!.play();
+        }
+      } catch (networkError) {
+        debugPrint('Error with network fallback: $networkError');
+        if (mounted) {
+          setState(() {
+            _isInitialized = false;
+            _isLoading = false;
+          });
+        }
       }
     }
   }
@@ -504,6 +546,7 @@ class _VideoStylistCardState extends State<VideoStylistCard> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
     return GestureDetector(
       onTap: widget.onTap,
       child: Container(

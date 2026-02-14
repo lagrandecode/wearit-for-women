@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import '../constants/app_constants.dart';
 import '../services/auth_service.dart';
+import '../services/theme_service.dart';
 import '../widgets/glassmorphism_nav_bar.dart';
 import 'login_screen.dart';
 
@@ -18,13 +20,9 @@ class SettingsScreen extends StatelessWidget {
         title: Text(
           'Settings',
           style: GoogleFonts.spaceGrotesk(
-            color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Stack(
         fit: StackFit.expand,
@@ -82,6 +80,106 @@ class SettingsScreen extends StatelessWidget {
           Card(
             child: Column(
               children: [
+                Consumer<ThemeService>(
+                  builder: (context, themeService, child) {
+                    return ListTile(
+                      leading: const Icon(Icons.palette_outlined),
+                      title: Text(
+                        'Theme',
+                        style: GoogleFonts.spaceGrotesk(),
+                      ),
+                      subtitle: Text(
+                        themeService.themeMode == AppThemeMode.light
+                            ? 'Light'
+                            : themeService.themeMode == AppThemeMode.dark
+                                ? 'Dark'
+                                : 'System',
+                        style: GoogleFonts.spaceGrotesk(
+                          fontSize: 12,
+                          color: Theme.of(context).textTheme.bodySmall?.color,
+                        ),
+                      ),
+                      trailing: PopupMenuButton<AppThemeMode>(
+                        icon: const Icon(Icons.arrow_drop_down),
+                        onSelected: (AppThemeMode mode) {
+                          themeService.setThemeMode(mode);
+                        },
+                        itemBuilder: (BuildContext context) => [
+                          PopupMenuItem<AppThemeMode>(
+                            value: AppThemeMode.light,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.light_mode,
+                                  size: 20,
+                                  color: themeService.themeMode == AppThemeMode.light
+                                      ? Theme.of(context).colorScheme.primary
+                                      : null,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Light',
+                                  style: GoogleFonts.spaceGrotesk(
+                                    fontWeight: themeService.themeMode == AppThemeMode.light
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem<AppThemeMode>(
+                            value: AppThemeMode.dark,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.dark_mode,
+                                  size: 20,
+                                  color: themeService.themeMode == AppThemeMode.dark
+                                      ? Theme.of(context).colorScheme.primary
+                                      : null,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'Dark',
+                                  style: GoogleFonts.spaceGrotesk(
+                                    fontWeight: themeService.themeMode == AppThemeMode.dark
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem<AppThemeMode>(
+                            value: AppThemeMode.system,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.brightness_auto,
+                                  size: 20,
+                                  color: themeService.themeMode == AppThemeMode.system
+                                      ? Theme.of(context).colorScheme.primary
+                                      : null,
+                                ),
+                                const SizedBox(width: 12),
+                                Text(
+                                  'System',
+                                  style: GoogleFonts.spaceGrotesk(
+                                    fontWeight: themeService.themeMode == AppThemeMode.system
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.notifications_outlined),
                   title: Text(
@@ -91,18 +189,6 @@ class SettingsScreen extends StatelessWidget {
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () {
                     // TODO: Navigate to notifications settings
-                  },
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.palette_outlined),
-                  title: Text(
-                    'Appearance',
-                    style: GoogleFonts.spaceGrotesk(),
-                  ),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    // TODO: Navigate to appearance settings
                   },
                 ),
                 const Divider(height: 1),

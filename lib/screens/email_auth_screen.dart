@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:video_player/video_player.dart';
 import '../services/auth_service.dart';
+import '../services/video_cache_service.dart';
 import '../constants/app_constants.dart';
 import '../widgets/shimmer_loading.dart';
 import '../widgets/floating_message.dart';
@@ -15,7 +17,7 @@ class EmailAuthScreen extends StatefulWidget {
   State<EmailAuthScreen> createState() => _EmailAuthScreenState();
 }
 
-class _EmailAuthScreenState extends State<EmailAuthScreen> {
+class _EmailAuthScreenState extends State<EmailAuthScreen> with AutomaticKeepAliveClientMixin {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -29,19 +31,27 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
   bool _signUpVideoInitialized = false;
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   void initState() {
     super.initState();
     _initializeVideos();
   }
 
   Future<void> _initializeVideos() async {
+    final videoCacheManager = VideoCacheManager();
+    
     // Sign in video
     try {
       final signInUrl = 'https://firebasestorage.googleapis.com/v0/b/alausasabi-c35ab.appspot.com/o/outfit1.mp4?alt=media&token=71a9fa4f-89e3-4d4a-8b1d-6678a98a6c9f';
-      _signInVideoController = VideoPlayerController.network(
-        signInUrl,
+      final signInFile = await videoCacheManager.getCachedVideoFile(signInUrl);
+      
+      _signInVideoController = VideoPlayerController.file(
+        signInFile,
         videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
       );
+      
       _signInVideoController!.setLooping(true);
       _signInVideoController!.setVolume(0);
       await _signInVideoController!.initialize();
@@ -54,10 +64,30 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
       }
     } catch (e) {
       debugPrint('Error initializing sign in video: $e');
-      if (mounted) {
-        setState(() {
-          _signInVideoInitialized = false;
-        });
+      // Fallback to network
+      try {
+        final signInUrl = 'https://firebasestorage.googleapis.com/v0/b/alausasabi-c35ab.appspot.com/o/outfit1.mp4?alt=media&token=71a9fa4f-89e3-4d4a-8b1d-6678a98a6c9f';
+        _signInVideoController = VideoPlayerController.network(
+          signInUrl,
+          videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+        );
+        _signInVideoController!.setLooping(true);
+        _signInVideoController!.setVolume(0);
+        await _signInVideoController!.initialize();
+        if (mounted) {
+          setState(() {
+            _signInVideoInitialized = true;
+          });
+          _signInVideoController!.play();
+          _currentVideoController = _signInVideoController;
+        }
+      } catch (networkError) {
+        debugPrint('Error with network fallback for sign in: $networkError');
+        if (mounted) {
+          setState(() {
+            _signInVideoInitialized = false;
+          });
+        }
       }
     }
     
@@ -66,10 +96,13 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
     
     try {
       final signUpUrl = 'https://firebasestorage.googleapis.com/v0/b/alausasabi-c35ab.appspot.com/o/outfit5.mp4?alt=media&token=08ad87ed-e48f-4fe4-a2d1-3c7873d55ab6';
-      _signUpVideoController = VideoPlayerController.network(
-        signUpUrl,
+      final signUpFile = await videoCacheManager.getCachedVideoFile(signUpUrl);
+      
+      _signUpVideoController = VideoPlayerController.file(
+        signUpFile,
         videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
       );
+      
       _signUpVideoController!.setLooping(true);
       _signUpVideoController!.setVolume(0);
       await _signUpVideoController!.initialize();
@@ -80,10 +113,28 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
       }
     } catch (e) {
       debugPrint('Error initializing sign up video: $e');
-      if (mounted) {
-        setState(() {
-          _signUpVideoInitialized = false;
-        });
+      // Fallback to network
+      try {
+        final signUpUrl = 'https://firebasestorage.googleapis.com/v0/b/alausasabi-c35ab.appspot.com/o/outfit5.mp4?alt=media&token=08ad87ed-e48f-4fe4-a2d1-3c7873d55ab6';
+        _signUpVideoController = VideoPlayerController.network(
+          signUpUrl,
+          videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+        );
+        _signUpVideoController!.setLooping(true);
+        _signUpVideoController!.setVolume(0);
+        await _signUpVideoController!.initialize();
+        if (mounted) {
+          setState(() {
+            _signUpVideoInitialized = true;
+          });
+        }
+      } catch (networkError) {
+        debugPrint('Error with network fallback for sign up: $networkError');
+        if (mounted) {
+          setState(() {
+            _signUpVideoInitialized = false;
+          });
+        }
       }
     }
   }
@@ -190,6 +241,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(

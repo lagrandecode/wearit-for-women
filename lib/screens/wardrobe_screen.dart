@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../constants/app_constants.dart';
 import '../models/wardrobe_item.dart';
 import '../services/wardrobe_service.dart';
@@ -227,12 +228,13 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
                 builder: (context) {
                   // Check if it's a URL
                   if (item.imageUrl.startsWith('http://') || item.imageUrl.startsWith('https://')) {
-                    return Image.network(
-                      item.imageUrl,
+                    return CachedNetworkImage(
+                      imageUrl: item.imageUrl,
                       fit: BoxFit.cover,
                       width: double.infinity,
                       height: double.infinity,
-                      errorBuilder: (context, error, stackTrace) {
+                      placeholder: (context, url) => const ImageShimmer(),
+                      errorWidget: (context, url, error) {
                         print('Error loading network image: $error');
                         print('Image URL: ${item.imageUrl}');
                         return Container(
@@ -256,10 +258,6 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
                             ],
                           ),
                         );
-                      },
-                      loadingBuilder: (context, child, loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return const ImageShimmer();
                       },
                     );
                   } else {

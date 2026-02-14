@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../constants/app_constants.dart';
 import '../models/planned_outfit.dart';
 import '../services/planner_service.dart';
@@ -258,20 +259,22 @@ class _PlannerScreenState extends State<PlannerScreen> with SingleTickerProvider
   Widget _buildOutfitImage(String imagePath, {double? width, double? height}) {
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
       // Firebase Storage URL
-      return Image.network(
-        imagePath,
+      return CachedNetworkImage(
+        imageUrl: imagePath,
         fit: BoxFit.cover,
         width: width ?? double.infinity,
         height: height ?? double.infinity,
-        errorBuilder: (context, error, stackTrace) {
+        placeholder: (context, url) => Container(
+          color: Colors.grey.shade300,
+          child: const Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+        errorWidget: (context, url, error) {
           return Container(
             color: Colors.grey.shade300,
             child: const Icon(Icons.error, color: Colors.red),
           );
-        },
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return const ImageShimmer();
         },
       );
     } else {
