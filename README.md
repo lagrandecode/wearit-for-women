@@ -1,6 +1,8 @@
 # Wearit
 Wearit is a fashion and style application that uses AI to generate personalized outfit recommendations based on user photos and preferences. The architecture is designed to be secure, fast, and scalable.
 
+> _OpenClaw just committed to the app — consider this README your receipt._
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
