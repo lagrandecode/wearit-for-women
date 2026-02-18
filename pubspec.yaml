@@ -141,3 +141,4 @@ flutter_native_splash:
   # iOS specific settings
   ios: true
   android: true
+
