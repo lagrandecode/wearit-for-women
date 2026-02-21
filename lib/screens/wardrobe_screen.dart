@@ -8,9 +8,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../constants/app_constants.dart';
 import '../models/wardrobe_item.dart';
 import '../services/wardrobe_service.dart';
+import '../utils/haptic_feedback_helper.dart';
 import '../widgets/floating_message.dart';
 import '../widgets/shimmer_loading.dart';
-import '../widgets/glassmorphism_nav_bar.dart';
 
 class WardrobeScreen extends StatefulWidget {
   const WardrobeScreen({super.key});
@@ -114,15 +114,14 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
             bottom: MediaQuery.of(context).padding.bottom + 100, // Above the navigation bar
             right: 20,
             child: FloatingActionButton.extended(
-              onPressed: () => _showAddItemDialog(context),
+              onPressed: () {
+                HapticFeedbackHelper.mediumImpact();
+                _showAddItemDialog(context);
+              },
               backgroundColor: const Color(AppConstants.primaryColor),
               icon: const Icon(Icons.add),
               label: const Text('Add Item'),
             ),
-          ),
-          GlassmorphismNavBar(
-            currentIndex: 1,
-            context: context,
           ),
         ],
       ),
@@ -844,12 +843,16 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                HapticFeedbackHelper.tap();
+                Navigator.pop(context);
+              },
               child: Text('Cancel', style: GoogleFonts.spaceGrotesk()),
             ),
             ElevatedButton(
               onPressed: selectedImage != null && selectedCategory != null && priceController.text.isNotEmpty
                   ? () async {
+                      HapticFeedbackHelper.mediumImpact();
                       final price = double.tryParse(priceController.text);
                       if (price == null || price < 0) {
                         FloatingMessage.show(

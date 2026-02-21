@@ -7,7 +7,6 @@ import 'package:image_picker/image_picker.dart';
 import '../services/vertex_ai_service.dart';
 import '../constants/app_constants.dart';
 import '../widgets/shimmer_loading.dart';
-import '../widgets/glassmorphism_nav_bar.dart';
 
 class OutfitSwapScreen extends StatefulWidget {
   const OutfitSwapScreen({super.key});
@@ -404,10 +403,6 @@ Be specific about:
             ],
           ],
             ),
-          ),
-          GlassmorphismNavBar(
-            currentIndex: 2,
-            context: context,
           ),
         ],
       ),

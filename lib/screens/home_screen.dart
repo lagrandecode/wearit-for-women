@@ -11,6 +11,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'dart:math';
 import '../services/auth_service.dart';
 import '../services/video_cache_service.dart';
+import '../utils/haptic_feedback_helper.dart';
 import '../constants/app_constants.dart';
 import 'login_screen.dart';
 import 'outfit_swap_screen.dart';
@@ -18,7 +19,6 @@ import 'planner_screen.dart';
 import 'rate_my_outfit_screen.dart';
 import 'wardrobe_screen.dart';
 import 'settings_screen.dart';
-import '../widgets/glassmorphism_nav_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -30,7 +30,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late ConfettiController _confettiController;
   bool _hasShownConfetti = false;
-  int _currentIndex = 0;
 
   @override
   void initState() {
@@ -181,6 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           subtitle: 'For any date, occasion and style',
                           icon: Icons.swap_horiz,
                           onTap: () {
+                            HapticFeedbackHelper.tap();
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -197,6 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           subtitle: 'Suggest styling tips',
                           icon: Icons.star_rate,
                           onTap: () {
+                            HapticFeedbackHelper.tap();
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -231,6 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: Icons.calendar_today,
                         label: 'Planner',
                         onTap: () {
+                          HapticFeedbackHelper.tap();
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -244,6 +246,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: Icons.swap_horiz,
                         label: 'Outfit Swap',
                         onTap: () {
+                          HapticFeedbackHelper.tap();
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -257,6 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: Icons.star_rate,
                         label: 'Rate Outfit',
                         onTap: () {
+                          HapticFeedbackHelper.tap();
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -270,6 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: Icons.checkroom,
                         label: 'My Wardrobe',
                         onTap: () {
+                          HapticFeedbackHelper.tap();
                           Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -306,11 +311,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 Color(0xFF0047AB), // Cobalt blue
               ],
             ),
-          ),
-          // Glassmorphism Floating Bottom Navigation
-          GlassmorphismNavBar(
-            currentIndex: _currentIndex,
-            context: context,
           ),
         ],
       ),
@@ -409,7 +409,10 @@ class _HomeScreenState extends State<HomeScreen> {
     required VoidCallback onTap,
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        HapticFeedbackHelper.tap();
+        onTap();
+      },
       child: Container(
         width: 100,
         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -548,7 +551,10 @@ class _VideoStylistCardState extends State<VideoStylistCard> with AutomaticKeepA
   Widget build(BuildContext context) {
     super.build(context); // Required for AutomaticKeepAliveClientMixin
     return GestureDetector(
-      onTap: widget.onTap,
+      onTap: () {
+        HapticFeedbackHelper.tap();
+        widget.onTap();
+      },
       child: Container(
         width: 280,
         decoration: BoxDecoration(

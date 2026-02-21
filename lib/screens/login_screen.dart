@@ -9,7 +9,7 @@ import '../constants/app_constants.dart';
 import '../widgets/shimmer_loading.dart';
 import '../widgets/floating_message.dart';
 import 'email_auth_screen.dart';
-import 'home_screen.dart';
+import 'main_navigation_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -211,7 +211,7 @@ class _LoginScreenState extends State<LoginScreen>
         if (context.mounted) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            MaterialPageRoute(builder: (context) => const MainNavigationScreen()),
           );
         }
       }
@@ -235,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen>
         if (context.mounted) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            MaterialPageRoute(builder: (context) => const MainNavigationScreen()),
           );
         }
       }

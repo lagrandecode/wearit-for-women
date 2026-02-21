@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../constants/app_constants.dart';
-import '../screens/home_screen.dart';
-import '../screens/wardrobe_screen.dart';
-import '../screens/outfit_swap_screen.dart';
-import '../screens/settings_screen.dart';
 
 class GlassmorphismNavBar extends StatelessWidget {
   final int currentIndex;
   final BuildContext context;
+  final ValueChanged<int>? onTabChanged;
 
   const GlassmorphismNavBar({
     super.key,
     required this.currentIndex,
     required this.context,
+    this.onTabChanged,
   });
 
   @override
@@ -82,14 +81,9 @@ class GlassmorphismNavBar extends StatelessWidget {
         label: 'Home',
         index: 0,
         onTap: () {
-          if (currentIndex != 0) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const HomeScreen(),
-              ),
-              (route) => false,
-            );
+          HapticFeedback.selectionClick();
+          if (currentIndex != 0 && onTabChanged != null) {
+            onTabChanged!(0);
           }
         },
       ),
@@ -100,14 +94,9 @@ class GlassmorphismNavBar extends StatelessWidget {
         label: 'Wardrobe',
         index: 1,
         onTap: () {
-          if (currentIndex != 1) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const WardrobeScreen(),
-              ),
-              (route) => false,
-            );
+          HapticFeedback.selectionClick();
+          if (currentIndex != 1 && onTabChanged != null) {
+            onTabChanged!(1);
           }
         },
       ),
@@ -118,14 +107,9 @@ class GlassmorphismNavBar extends StatelessWidget {
         label: 'Outfit Swap',
         index: 2,
         onTap: () {
-          if (currentIndex != 2) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const OutfitSwapScreen(),
-              ),
-              (route) => false,
-            );
+          HapticFeedback.selectionClick();
+          if (currentIndex != 2 && onTabChanged != null) {
+            onTabChanged!(2);
           }
         },
       ),
@@ -136,14 +120,9 @@ class GlassmorphismNavBar extends StatelessWidget {
         label: 'Settings',
         index: 3,
         onTap: () {
-          if (currentIndex != 3) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const SettingsScreen(),
-              ),
-              (route) => false,
-            );
+          HapticFeedback.selectionClick();
+          if (currentIndex != 3 && onTabChanged != null) {
+            onTabChanged!(3);
           }
         },
       ),

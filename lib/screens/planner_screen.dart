@@ -264,12 +264,7 @@ class _PlannerScreenState extends State<PlannerScreen> with SingleTickerProvider
         fit: BoxFit.cover,
         width: width ?? double.infinity,
         height: height ?? double.infinity,
-        placeholder: (context, url) => Container(
-          color: Colors.grey.shade300,
-          child: const Center(
-            child: CircularProgressIndicator(),
-          ),
-        ),
+        placeholder: (context, url) => const ImageShimmer(),
         errorWidget: (context, url, error) {
           return Container(
             color: Colors.grey.shade300,

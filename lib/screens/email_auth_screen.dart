@@ -8,7 +8,7 @@ import '../services/video_cache_service.dart';
 import '../constants/app_constants.dart';
 import '../widgets/shimmer_loading.dart';
 import '../widgets/floating_message.dart';
-import 'home_screen.dart';
+import 'main_navigation_screen.dart';
 
 class EmailAuthScreen extends StatefulWidget {
   const EmailAuthScreen({super.key});
@@ -192,7 +192,7 @@ class _EmailAuthScreenState extends State<EmailAuthScreen> with AutomaticKeepAli
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
+          MaterialPageRoute(builder: (context) => const MainNavigationScreen()),
         );
       }
     } on FirebaseAuthException catch (e) {

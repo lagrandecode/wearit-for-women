@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../constants/app_constants.dart';
 import '../services/auth_service.dart';
 import '../services/theme_service.dart';
-import '../widgets/glassmorphism_nav_bar.dart';
 import 'login_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -275,10 +274,6 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
             ],
-          ),
-          GlassmorphismNavBar(
-            currentIndex: 3,
-            context: context,
           ),
         ],
       ),
