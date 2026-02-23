@@ -13,6 +13,7 @@ import '../services/auth_service.dart';
 import '../services/video_cache_service.dart';
 import '../utils/haptic_feedback_helper.dart';
 import '../constants/app_constants.dart';
+import '../widgets/shimmer_loading.dart';
 import 'login_screen.dart';
 import 'outfit_swap_screen.dart';
 import 'planner_screen.dart';
@@ -226,67 +227,106 @@ class _HomeScreenState extends State<HomeScreen> {
                     height: 100,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
-                      children: [
-                        _buildShortcutButton(
-                          context,
-                          icon: Icons.calendar_today,
-                          label: 'Planner',
-                          onTap: () {
-                            HapticFeedbackHelper.tap();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const PlannerScreen(),
-                              ),
-                            );
-                          },
-                        ),
+                    children: [
+                      _buildShortcutButton(
+                        context,
+                        icon: Icons.calendar_today,
+                        label: 'Planner',
+                        onTap: () {
+                          HapticFeedbackHelper.tap();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const PlannerScreen(),
+                            ),
+                          );
+                        },
+                      ),
                         const SizedBox(width: 12),
-                        _buildShortcutButton(
-                          context,
-                          icon: Icons.swap_horiz,
-                          label: 'Outfit Swap',
-                          onTap: () {
-                            HapticFeedbackHelper.tap();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const OutfitSwapScreen(),
-                              ),
-                            );
-                          },
-                        ),
+                      _buildShortcutButton(
+                        context,
+                        icon: Icons.swap_horiz,
+                        label: 'Outfit Swap',
+                        onTap: () {
+                          HapticFeedbackHelper.tap();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const OutfitSwapScreen(),
+                            ),
+                          );
+                        },
+                      ),
                         const SizedBox(width: 12),
-                        _buildShortcutButton(
-                          context,
-                          icon: Icons.star_rate,
-                          label: 'Rate Outfit',
-                          onTap: () {
-                            HapticFeedbackHelper.tap();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const RateMyOutfitScreen(),
-                              ),
-                            );
-                          },
-                        ),
+                      _buildShortcutButton(
+                        context,
+                        icon: Icons.star_rate,
+                        label: 'Rate Outfit',
+                        onTap: () {
+                          HapticFeedbackHelper.tap();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const RateMyOutfitScreen(),
+                            ),
+                          );
+                        },
+                      ),
                         const SizedBox(width: 12),
-                        _buildShortcutButton(
-                          context,
-                          icon: Icons.checkroom,
-                          label: 'My Wardrobe',
-                          onTap: () {
-                            HapticFeedbackHelper.tap();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const WardrobeScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
+                      _buildShortcutButton(
+                        context,
+                        icon: Icons.checkroom,
+                        label: 'My Wardrobe',
+                        onTap: () {
+                          HapticFeedbackHelper.tap();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const WardrobeScreen(),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // AI image Trends Section
+                  Text(
+                    'AI image Trends',
+                    style: GoogleFonts.spaceGrotesk(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // AI image Trends ListView
+                  SizedBox(
+                    height: 200,
+                    child: ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: 5, // You can adjust this count
+                      itemBuilder: (context, index) {
+                        return Container(
+                          width: 140,
+                          height: 200,
+                          margin: EdgeInsets.only(
+                            right: index < 4 ? 12 : 0,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color: Colors.grey.shade200,
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: _buildTrendVideoCard(
+                              'https://firebasestorage.googleapis.com/v0/b/alausasabi-c35ab.appspot.com/o/motion2Fast_show_thw_full_image_Ultra_cinematic_fashion_film_5_0.mp4?alt=media&token=2893d790-8a17-422b-8cd7-6e7f7ef72ada',
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -448,6 +488,10 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+  Widget _buildTrendVideoCard(String videoUrl) {
+    return TrendVideoCard(videoUrl: videoUrl);
+  }
 }
 
 /// Video-based stylist card widget
@@ -587,9 +631,11 @@ class _VideoStylistCardState extends State<VideoStylistCard> with AutomaticKeepA
                           child: VideoPlayer(_controller!),
                         ),
                       )
-                    : Container(
-                        color: Colors.black,
-                      ),
+                    : _isLoading
+                        ? const ImageShimmer()
+                        : Container(
+                            color: Colors.black,
+                          ),
               ),
               // Dark overlay for better text readability
               Positioned.fill(
@@ -658,5 +704,126 @@ class _VideoStylistCardState extends State<VideoStylistCard> with AutomaticKeepA
         ),
       ),
     );
+  }
+}
+
+/// Simple video card widget for trends
+class TrendVideoCard extends StatefulWidget {
+  final String videoUrl;
+
+  const TrendVideoCard({
+    super.key,
+    required this.videoUrl,
+  });
+
+  @override
+  State<TrendVideoCard> createState() => _TrendVideoCardState();
+}
+
+class _TrendVideoCardState extends State<TrendVideoCard> with AutomaticKeepAliveClientMixin {
+  VideoPlayerController? _controller;
+  bool _isInitialized = false;
+  bool _isLoading = false;
+
+  @override
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeVideo();
+  }
+
+  Future<void> _initializeVideo() async {
+    if (_isLoading) return;
+    
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final videoCacheManager = VideoCacheManager();
+      
+      // Get cached video file (downloads if not cached)
+      final videoFile = await videoCacheManager.getCachedVideoFile(widget.videoUrl);
+      
+      // Use file controller with cached video
+      _controller = VideoPlayerController.file(
+        videoFile,
+        videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+      );
+      
+      _controller!.setLooping(true);
+      _controller!.setVolume(0);
+      await _controller!.initialize();
+      
+      if (mounted) {
+        setState(() {
+          _isInitialized = true;
+          _isLoading = false;
+        });
+        _controller!.play();
+      }
+    } catch (e) {
+      debugPrint('Error initializing trend video: $e');
+      // Fallback to network if caching fails
+      try {
+        _controller = VideoPlayerController.network(
+          widget.videoUrl,
+          videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+        );
+        _controller!.setLooping(true);
+        _controller!.setVolume(0);
+        await _controller!.initialize();
+        if (mounted) {
+          setState(() {
+            _isInitialized = true;
+            _isLoading = false;
+          });
+          _controller!.play();
+        }
+      } catch (networkError) {
+        debugPrint('Error with network fallback: $networkError');
+        if (mounted) {
+          setState(() {
+            _isInitialized = false;
+            _isLoading = false;
+          });
+        }
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
+    return _isInitialized && _controller != null &&
+            _controller!.value.isInitialized
+        ? FittedBox(
+            fit: BoxFit.cover,
+            child: SizedBox(
+              width: _controller!.value.size.width,
+              height: _controller!.value.size.height,
+              child: VideoPlayer(_controller!),
+            ),
+          )
+        : _isLoading
+            ? const ImageShimmer()
+            : Container(
+                color: Colors.black,
+                child: const Center(
+                  child: Icon(
+                    Icons.error_outline,
+                    color: Colors.white,
+                    size: 32,
+                  ),
+                ),
+              );
   }
 }
