@@ -221,69 +221,73 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Shortcuts Grid
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
-                    alignment: WrapAlignment.start,
-                    children: [
-                      _buildShortcutButton(
-                        context,
-                        icon: Icons.calendar_today,
-                        label: 'Planner',
-                        onTap: () {
-                          HapticFeedbackHelper.tap();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const PlannerScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildShortcutButton(
-                        context,
-                        icon: Icons.swap_horiz,
-                        label: 'Outfit Swap',
-                        onTap: () {
-                          HapticFeedbackHelper.tap();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const OutfitSwapScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildShortcutButton(
-                        context,
-                        icon: Icons.star_rate,
-                        label: 'Rate Outfit',
-                        onTap: () {
-                          HapticFeedbackHelper.tap();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const RateMyOutfitScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      _buildShortcutButton(
-                        context,
-                        icon: Icons.checkroom,
-                        label: 'My Wardrobe',
-                        onTap: () {
-                          HapticFeedbackHelper.tap();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const WardrobeScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                  // Shortcuts Horizontal ListView
+                  SizedBox(
+                    height: 100,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        _buildShortcutButton(
+                          context,
+                          icon: Icons.calendar_today,
+                          label: 'Planner',
+                          onTap: () {
+                            HapticFeedbackHelper.tap();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const PlannerScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(width: 12),
+                        _buildShortcutButton(
+                          context,
+                          icon: Icons.swap_horiz,
+                          label: 'Outfit Swap',
+                          onTap: () {
+                            HapticFeedbackHelper.tap();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const OutfitSwapScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(width: 12),
+                        _buildShortcutButton(
+                          context,
+                          icon: Icons.star_rate,
+                          label: 'Rate Outfit',
+                          onTap: () {
+                            HapticFeedbackHelper.tap();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const RateMyOutfitScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(width: 12),
+                        _buildShortcutButton(
+                          context,
+                          icon: Icons.checkroom,
+                          label: 'My Wardrobe',
+                          onTap: () {
+                            HapticFeedbackHelper.tap();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const WardrobeScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                   const SizedBox(height: 32),
                 ],
