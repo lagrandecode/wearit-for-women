@@ -178,16 +178,9 @@ Be specific about:
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Outfit Swap',
-          style: GoogleFonts.spaceGrotesk(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: const Text('Outfit Swap'),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: Stack(
         fit: StackFit.expand,

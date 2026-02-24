@@ -76,27 +76,23 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'My Wardrobe',
-          style: GoogleFonts.spaceGrotesk(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: const Text('My Wardrobe'),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
             Tab(text: 'Wardrobe'),
             Tab(text: 'Statistics'),
           ],
-          labelColor: Colors.black,
-          unselectedLabelColor: Colors.black54,
-          indicatorColor: Colors.black,
+          labelColor: onSurface,
+          unselectedLabelColor: onSurface.withOpacity(0.7),
+          indicatorColor: theme.colorScheme.primary,
         ),
       ),
       body: Stack(

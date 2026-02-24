@@ -291,27 +291,23 @@ class _PlannerScreenState extends State<PlannerScreen> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Planner',
-          style: GoogleFonts.spaceGrotesk(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: const Text('Planner'),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
             Tab(text: 'Upcoming'),
             Tab(text: 'History'),
           ],
-          labelColor: Colors.black,
-          unselectedLabelColor: Colors.black54,
-          indicatorColor: Colors.black,
+          labelColor: onSurface,
+          unselectedLabelColor: onSurface.withOpacity(0.7),
+          indicatorColor: theme.colorScheme.primary,
         ),
       ),
       body: TabBarView(

@@ -209,16 +209,9 @@ Be constructive and specific in your feedback. Highlight what works well and pro
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Rate My Outfit',
-          style: GoogleFonts.spaceGrotesk(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: const Text('Rate My Outfit'),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),

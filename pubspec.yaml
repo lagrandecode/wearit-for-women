@@ -52,6 +52,7 @@ dependencies:
   provider: ^6.1.2
   shared_preferences: ^2.2.3
   path_provider: ^2.1.2
+  path: ^1.9.0
   fl_chart: ^0.69.0
   shimmer: ^3.0.0
   confetti: ^0.7.0
@@ -59,6 +60,8 @@ dependencies:
   cached_network_image: ^3.3.1
   crypto: ^3.0.3
   flutter_cache_manager: ^3.3.1
+  share_plus: ^10.1.2
+  image_gallery_saver: ^2.0.3
 
 dev_dependencies:
   flutter_test:

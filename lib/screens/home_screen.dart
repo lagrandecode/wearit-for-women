@@ -20,6 +20,7 @@ import 'planner_screen.dart';
 import 'rate_my_outfit_screen.dart';
 import 'wardrobe_screen.dart';
 import 'settings_screen.dart';
+import 'ai_image_generation_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -309,20 +310,34 @@ class _HomeScreenState extends State<HomeScreen> {
                       scrollDirection: Axis.horizontal,
                       itemCount: 5, // You can adjust this count
                       itemBuilder: (context, index) {
-                        return Container(
-                          width: 140,
-                          height: 200,
-                          margin: EdgeInsets.only(
-                            right: index < 4 ? 12 : 0,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: Colors.grey.shade200,
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: _buildTrendVideoCard(
-                              'https://firebasestorage.googleapis.com/v0/b/alausasabi-c35ab.appspot.com/o/motion2Fast_show_thw_full_image_Ultra_cinematic_fashion_film_5_0.mp4?alt=media&token=2893d790-8a17-422b-8cd7-6e7f7ef72ada',
+                        return GestureDetector(
+                          onTap: index == 0
+                              ? () {
+                                  HapticFeedbackHelper.tap();
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const AIImageGenerationScreen(),
+                                    ),
+                                  );
+                                }
+                              : null,
+                          child: Container(
+                            width: 140,
+                            height: 200,
+                            margin: EdgeInsets.only(
+                              right: index < 4 ? 12 : 0,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.grey.shade200,
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: _buildTrendVideoCard(
+                                'https://firebasestorage.googleapis.com/v0/b/alausasabi-c35ab.appspot.com/o/motion2Fast_show_thw_full_image_Ultra_cinematic_fashion_film_5_0.mp4?alt=media&token=2893d790-8a17-422b-8cd7-6e7f7ef72ada',
+                              ),
                             ),
                           ),
                         );
