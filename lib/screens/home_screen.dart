@@ -21,6 +21,10 @@ import 'rate_my_outfit_screen.dart';
 import 'wardrobe_screen.dart';
 import 'settings_screen.dart';
 import 'ai_image_generation_screen.dart';
+import '../models/trend_card.dart';
+import '../services/trend_card_service.dart';
+import '../utils/admin_helper.dart';
+import 'admin_trend_cards_management_dialog.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,12 +36,24 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late ConfettiController _confettiController;
   bool _hasShownConfetti = false;
+  bool _isAdmin = false;
+  final _trendCardService = TrendCardService();
 
   @override
   void initState() {
     super.initState();
     _confettiController = ConfettiController(duration: const Duration(seconds: 4));
     _checkAndShowConfetti();
+    _checkAdminStatus();
+  }
+
+  Future<void> _checkAdminStatus() async {
+    final isAdmin = await AdminHelper.isAdmin();
+    if (mounted) {
+      setState(() {
+        _isAdmin = isAdmin;
+      });
+    }
   }
 
   Future<void> _checkAndShowConfetti() async {
@@ -306,40 +322,84 @@ class _HomeScreenState extends State<HomeScreen> {
                   // AI image Trends ListView
                   SizedBox(
                     height: 200,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: 5, // You can adjust this count
-                      itemBuilder: (context, index) {
-                        return GestureDetector(
-                          onTap: index == 0
-                              ? () {
-                                  HapticFeedbackHelper.tap();
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          const AIImageGenerationScreen(),
-                                    ),
-                                  );
-                                }
-                              : null,
-                          child: Container(
-                            width: 140,
-                            height: 200,
-                            margin: EdgeInsets.only(
-                              right: index < 4 ? 12 : 0,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color: Colors.grey.shade200,
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: _buildTrendVideoCard(
-                                'https://firebasestorage.googleapis.com/v0/b/alausasabi-c35ab.appspot.com/o/motion2Fast_show_thw_full_image_Ultra_cinematic_fashion_film_5_0.mp4?alt=media&token=2893d790-8a17-422b-8cd7-6e7f7ef72ada',
+                    child: StreamBuilder<List<TrendCard>>(
+                      stream: _trendCardService.getTrendCards(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: 3,
+                            itemBuilder: (context, index) => Container(
+                              width: 140,
+                              height: 200,
+                              margin: EdgeInsets.only(
+                                right: index < 2 ? 12 : 0,
                               ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                                color: Colors.grey.shade200,
+                              ),
+                              child: const ImageShimmer(),
                             ),
-                          ),
+                          );
+                        }
+
+                        if (snapshot.hasError) {
+                          return Center(
+                            child: Text(
+                              'Error loading trends',
+                              style: GoogleFonts.spaceGrotesk(),
+                            ),
+                          );
+                        }
+
+                        final cards = snapshot.data ?? [];
+
+                        if (cards.isEmpty) {
+                          return Center(
+                            child: Text(
+                              'No trends available',
+                              style: GoogleFonts.spaceGrotesk(),
+                            ),
+                          );
+                        }
+
+                        return ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: cards.length,
+                          itemBuilder: (context, index) {
+                            final card = cards[index];
+                            return GestureDetector(
+                              onTap: () {
+                                HapticFeedbackHelper.tap();
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AIImageGenerationScreen(
+                                      prompt: card.prompt,
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                width: 140,
+                                height: 200,
+                                margin: EdgeInsets.only(
+                                  right: index < cards.length - 1 ? 12 : 0,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  color: Colors.grey.shade200,
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: card.mediaType == 'video'
+                                      ? _buildTrendVideoCard(card.mediaUrl)
+                                      : _buildTrendImageCard(card.mediaUrl),
+                                ),
+                              ),
+                            );
+                          },
                         );
                       },
                     ),
@@ -351,6 +411,23 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
             ],
           ),
+          // Admin FAB (only visible to admins)
+          if (_isAdmin)
+            Positioned(
+              bottom: 100,
+              right: 20,
+              child: FloatingActionButton(
+                onPressed: () {
+                  HapticFeedbackHelper.tap();
+                  showDialog(
+                    context: context,
+                    builder: (context) => const AdminTrendCardsManagementDialog(),
+                  );
+                },
+                backgroundColor: const Color(AppConstants.primaryColor),
+                child: const Icon(Icons.admin_panel_settings, color: Colors.white),
+              ),
+            ),
           // Confetti overlay
           Align(
             alignment: Alignment.topCenter,
@@ -506,6 +583,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildTrendVideoCard(String videoUrl) {
     return TrendVideoCard(videoUrl: videoUrl);
+  }
+
+  Widget _buildTrendImageCard(String imageUrl) {
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      fit: BoxFit.cover,
+      placeholder: (context, url) => const ImageShimmer(),
+      errorWidget: (context, url, error) => Container(
+        color: Colors.grey.shade300,
+        child: const Icon(Icons.error_outline, color: Colors.grey),
+      ),
+    );
   }
 }
 
