@@ -13,9 +13,9 @@ import '../widgets/shimmer_loading.dart';
 import '../constants/app_constants.dart';
 
 class AIImageGenerationScreen extends StatefulWidget {
-  final String? prompt; // Optional prompt from trend card
+  final String prompt; // Required prompt from trend card
   
-  const AIImageGenerationScreen({super.key, this.prompt});
+  const AIImageGenerationScreen({super.key, required this.prompt});
 
   @override
   State<AIImageGenerationScreen> createState() => _AIImageGenerationScreenState();
@@ -30,14 +30,6 @@ class _AIImageGenerationScreenState extends State<AIImageGenerationScreen> {
   Uint8List? _generatedImageBytes;
   bool _isGenerating = false;
   String? _error;
-
-  // Use provided prompt or default prompt
-  String get _prompt => widget.prompt ?? 
-      "Transform me into a figure made entirely from layered flower petals. "
-      "Use realistic petal textures, delicate edges, and natural overlaps to form "
-      "facial features and silhouette while keeping identity recognizable. "
-      "Soft daylight, gentle shadows, and a clean minimal background. "
-      "Photoreal, high-detail, elegant";
 
   Future<void> _pickImage(ImageSource source) async {
     try {
@@ -114,7 +106,7 @@ class _AIImageGenerationScreenState extends State<AIImageGenerationScreen> {
       final imageFile = File(_selectedImage!.path);
       final imageUrl = await _openAIService.transformImage(
         imageFile: imageFile,
-        prompt: _prompt,
+        prompt: widget.prompt,
       );
 
       // Download the transformed image
@@ -258,7 +250,7 @@ class _AIImageGenerationScreenState extends State<AIImageGenerationScreen> {
           children: [
             // Instructions
             Text(
-              'Upload or take a photo to transform yourself into a figure made from flower petals',
+              'Upload or take a photo to transform yourself using AI',
               style: GoogleFonts.spaceGrotesk(
                 fontSize: 16,
               ),

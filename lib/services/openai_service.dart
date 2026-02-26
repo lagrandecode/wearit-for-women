@@ -34,7 +34,6 @@ class OpenAIService {
       // Enhance prompt to preserve identity
       final enhancedPrompt =
           '$prompt. Preserve exact facial structure, expression, pose, and proportions. '
-          'Only transform surface material into layered flower petals. '
           'Do not change camera angle or body position.';
 
       // Send image and prompt together for real image editing
