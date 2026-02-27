@@ -1,12 +1,19 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import '../services/vertex_ai_service.dart';
 import '../constants/app_constants.dart';
 import '../widgets/shimmer_loading.dart';
+import '../widgets/floating_message.dart';
+import '../utils/haptic_feedback_helper.dart';
 
 class OutfitSwapScreen extends StatefulWidget {
   const OutfitSwapScreen({super.key});
@@ -22,6 +29,10 @@ class _OutfitSwapScreenState extends State<OutfitSwapScreen> {
   Uint8List? _generatedImageBytes; // Store generated image bytes
   bool _isLoading = false;
   String? _error;
+  
+  // Store original image dimensions for resizing
+  int? _originalImageWidth;
+  int? _originalImageHeight;
 
   Future<void> _pickImage(ImageSource source) async {
     try {
@@ -33,12 +44,36 @@ class _OutfitSwapScreenState extends State<OutfitSwapScreen> {
       );
 
       if (image != null) {
-        setState(() {
-          _selectedImage = image;
-          _generatedResult = null;
-          _generatedImageBytes = null;
-          _error = null;
-        });
+        // Get image dimensions
+        try {
+          final imageFile = File(image.path);
+          final imageBytes = await imageFile.readAsBytes();
+          final codec = await ui.instantiateImageCodec(imageBytes);
+          final frame = await codec.getNextFrame();
+          final imageInfo = frame.image;
+          
+          setState(() {
+            _selectedImage = image;
+            _originalImageWidth = imageInfo.width;
+            _originalImageHeight = imageInfo.height;
+            _generatedResult = null;
+            _generatedImageBytes = null;
+            _error = null;
+          });
+          
+          // Dispose the image to free memory
+          imageInfo.dispose();
+        } catch (e) {
+          // If dimension detection fails, continue without resizing
+          setState(() {
+            _selectedImage = image;
+            _originalImageWidth = null;
+            _originalImageHeight = null;
+            _generatedResult = null;
+            _generatedImageBytes = null;
+            _error = null;
+          });
+        }
       }
     } catch (e) {
       setState(() {
@@ -151,7 +186,12 @@ Be specific about:
       if (result.startsWith('IMAGE_DATA:')) {
         // Extract base64 image data
         final imageBase64 = result.substring(11); // Remove 'IMAGE_DATA:' prefix
-        final imageBytes = base64Decode(imageBase64);
+        var imageBytes = base64Decode(imageBase64);
+        
+        // Resize generated image to match uploaded image dimensions if available
+        if (_originalImageWidth != null && _originalImageHeight != null) {
+          imageBytes = await _resizeImage(imageBytes, _originalImageWidth!, _originalImageHeight!);
+        }
         
         setState(() {
           _generatedImageBytes = imageBytes;
@@ -171,6 +211,142 @@ Be specific about:
         _error = 'Failed to generate outfit swap: $e';
         _isLoading = false;
       });
+    }
+  }
+
+  /// Resize image to match original dimensions
+  Future<Uint8List> _resizeImage(Uint8List imageBytes, int targetWidth, int targetHeight) async {
+    try {
+      final codec = await ui.instantiateImageCodec(imageBytes);
+      final frame = await codec.getNextFrame();
+      final image = frame.image;
+      
+      // Create a picture recorder
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder);
+      
+      // Draw the image scaled to target dimensions
+      final paint = Paint()..filterQuality = FilterQuality.high;
+      canvas.drawImageRect(
+        image,
+        Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
+        Rect.fromLTWH(0, 0, targetWidth.toDouble(), targetHeight.toDouble()),
+        paint,
+      );
+      
+      // Convert to image
+      final picture = recorder.endRecording();
+      final resizedImage = await picture.toImage(targetWidth, targetHeight);
+      final byteData = await resizedImage.toByteData(format: ui.ImageByteFormat.png);
+      
+      // Dispose resources
+      image.dispose();
+      picture.dispose();
+      resizedImage.dispose();
+      
+      return byteData!.buffer.asUint8List();
+    } catch (e) {
+      // If resize fails, return original bytes
+      return imageBytes;
+    }
+  }
+
+  Future<void> _downloadImage() async {
+    if (_generatedImageBytes == null) return;
+
+    try {
+      HapticFeedbackHelper.tap();
+      
+      // Save image to photo library
+      final result = await ImageGallerySaver.saveImage(
+        _generatedImageBytes!,
+        quality: 100,
+        name: 'outfit_swap_${DateTime.now().millisecondsSinceEpoch}',
+      );
+
+      if (mounted) {
+        if (result['isSuccess'] == true) {
+          FloatingMessage.show(
+            context,
+            message: 'Image saved to photo library!',
+            icon: Icons.check_circle,
+            backgroundColor: AppConstants.successColor,
+            iconColor: Colors.white,
+          );
+          HapticFeedbackHelper.mediumImpact();
+        } else {
+          throw Exception('Failed to save to photo library');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        FloatingMessage.show(
+          context,
+          message: 'Failed to save image: ${e.toString().replaceAll('Exception: ', '')}',
+          icon: Icons.error_outline,
+          backgroundColor: Colors.red,
+          iconColor: Colors.white,
+        );
+        HapticFeedbackHelper.heavyImpact();
+      }
+    }
+  }
+
+  Future<void> _shareImage([BuildContext? shareContext]) async {
+    if (_generatedImageBytes == null) return;
+
+    try {
+      HapticFeedbackHelper.tap();
+      
+      // Save image to temporary directory for sharing
+      final directory = await getTemporaryDirectory();
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final fileName = 'outfit_swap_$timestamp.png';
+      final filePath = path.join(directory.path, fileName);
+      
+      final file = File(filePath);
+      await file.writeAsBytes(_generatedImageBytes!);
+
+      // Get share position origin for iOS (especially iPad)
+      Rect? sharePositionOrigin;
+      if (Platform.isIOS && shareContext != null) {
+        final RenderBox? renderBox = shareContext.findRenderObject() as RenderBox?;
+        if (renderBox != null && renderBox.hasSize) {
+          final size = renderBox.size;
+          final offset = renderBox.localToGlobal(Offset.zero);
+          sharePositionOrigin = Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height);
+        }
+      }
+
+      // Share the image with a custom message
+      final result = await Share.shareXFiles(
+        [XFile(filePath, mimeType: 'image/png', name: fileName)],
+        text: 'Check out my AI-generated outfit swap with WearIt! 👗✨',
+        subject: 'WearIt Outfit Swap - AI Generated',
+        sharePositionOrigin: sharePositionOrigin,
+      );
+
+      // Show success feedback if share was completed
+      if (result.status == ShareResultStatus.success) {
+        if (mounted) {
+          HapticFeedbackHelper.mediumImpact();
+        }
+      } else if (result.status == ShareResultStatus.dismissed) {
+        // User dismissed the share sheet - no error, just cancelled
+        HapticFeedbackHelper.lightImpact();
+      }
+    } catch (e) {
+      if (mounted) {
+        FloatingMessage.show(
+          context,
+          message:
+              'Failed to share image: ${e.toString().replaceAll('Exception: ', '').replaceAll('PlatformException: ', '')}',
+          icon: Icons.error_outline,
+          backgroundColor: Colors.red,
+          iconColor: Colors.white,
+        );
+        HapticFeedbackHelper.heavyImpact();
+      }
     }
   }
 
@@ -372,6 +548,55 @@ Be specific about:
                       width: double.infinity,
                     ),
                   ),
+                ),
+                const SizedBox(height: 16),
+                // Download and Share buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: _downloadImage,
+                        icon: const Icon(Icons.download),
+                        label: Text(
+                          'Download',
+                          style: GoogleFonts.spaceGrotesk(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(AppConstants.primaryColor),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Builder(
+                        builder: (buttonContext) => ElevatedButton.icon(
+                          onPressed: () => _shareImage(buttonContext),
+                          icon: const Icon(Icons.share),
+                          label: Text(
+                            'Share',
+                            style: GoogleFonts.spaceGrotesk(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(AppConstants.primaryColor),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
               ],
