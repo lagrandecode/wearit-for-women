@@ -4,6 +4,7 @@ import '../models/trend_card.dart';
 import '../services/trend_card_service.dart';
 import '../constants/app_constants.dart';
 import '../utils/haptic_feedback_helper.dart';
+import '../widgets/floating_message.dart';
 
 class AdminTrendCardDialog extends StatefulWidget {
   final TrendCard? card; // If provided, we're editing; otherwise, creating
@@ -70,11 +71,12 @@ class _AdminTrendCardDialogState extends State<AdminTrendCardDialog> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
+        FloatingMessage.show(
+          context,
+          message: 'Error: ${e.toString()}',
+          icon: Icons.error_outline,
+          backgroundColor: Colors.red,
+          iconColor: Colors.white,
         );
         HapticFeedbackHelper.heavyImpact();
       }

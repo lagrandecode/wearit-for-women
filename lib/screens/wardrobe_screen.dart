@@ -877,7 +877,7 @@ class _WardrobeScreenState extends State<WardrobeScreen> with SingleTickerProvid
                         context,
                         message: 'Item added to wardrobe',
                         icon: Icons.check_circle,
-                        backgroundColor: Colors.green,
+                        backgroundColor: AppConstants.successColor,
                         iconColor: Colors.white,
                       );
                     }

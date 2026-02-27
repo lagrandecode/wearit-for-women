@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/notification_service.dart';
+import '../constants/app_constants.dart';
 import 'floating_message.dart';
 
 /// Widget to display FCM token for testing purposes
@@ -45,7 +46,7 @@ class _FCMTokenDisplayState extends State<FCMTokenDisplay> {
         context,
         message: 'Token copied! Check console for full token.',
         icon: Icons.check_circle,
-        backgroundColor: Colors.green,
+        backgroundColor: AppConstants.successColor,
         iconColor: Colors.white,
         duration: const Duration(seconds: 2),
       );

@@ -170,7 +170,7 @@ class _PlannerScreenState extends State<PlannerScreen> with SingleTickerProvider
       context,
       message: 'Outfit planned for ${outfit.formattedTime}',
       icon: Icons.check_circle,
-      backgroundColor: Colors.green,
+      backgroundColor: AppConstants.successColor,
       iconColor: Colors.white,
     );
   }

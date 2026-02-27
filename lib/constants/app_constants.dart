@@ -1,8 +1,10 @@
+import 'package:flutter/material.dart';
 import 'secrets.dart';
 
 class AppConstants {
   // Colors
   static const primaryColor = 0xFFFE9ECD;
+  static const successColor = Colors.purple; // Purple for success messages (women-focused app)
   
   // Firebase Configuration
   static const firebaseProjectId = 'wearit-9b76f';

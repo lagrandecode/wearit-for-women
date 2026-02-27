@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/trend_card.dart';
 import '../services/trend_card_service.dart';
 import '../utils/haptic_feedback_helper.dart';
+import '../widgets/floating_message.dart';
+import '../constants/app_constants.dart';
 import 'admin_trend_card_dialog.dart';
 
 class AdminTrendCardsManagementDialog extends StatefulWidget {
@@ -40,21 +42,23 @@ class _AdminTrendCardsManagementDialogState extends State<AdminTrendCardsManagem
         HapticFeedbackHelper.tap();
         await _trendCardService.deleteTrendCard(card.id);
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Card deleted successfully'),
-              backgroundColor: Colors.green,
-            ),
+          FloatingMessage.show(
+            context,
+            message: 'Card deleted successfully',
+            icon: Icons.check_circle,
+            backgroundColor: AppConstants.successColor,
+            iconColor: Colors.white,
           );
           HapticFeedbackHelper.mediumImpact();
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error deleting card: $e'),
-              backgroundColor: Colors.red,
-            ),
+          FloatingMessage.show(
+            context,
+            message: 'Error deleting card: $e',
+            icon: Icons.error_outline,
+            backgroundColor: Colors.red,
+            iconColor: Colors.white,
           );
           HapticFeedbackHelper.heavyImpact();
         }
@@ -69,11 +73,12 @@ class _AdminTrendCardsManagementDialogState extends State<AdminTrendCardsManagem
     );
 
     if (result == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Card updated successfully'),
-          backgroundColor: Colors.green,
-        ),
+      FloatingMessage.show(
+        context,
+        message: 'Card updated successfully',
+        icon: Icons.check_circle,
+        backgroundColor: AppConstants.successColor,
+        iconColor: Colors.white,
       );
     }
   }
@@ -197,11 +202,12 @@ class _AdminTrendCardsManagementDialogState extends State<AdminTrendCardsManagem
                 );
 
                 if (result == true && mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Card added successfully'),
-                      backgroundColor: Colors.green,
-                    ),
+                  FloatingMessage.show(
+                    context,
+                    message: 'Card added successfully',
+                    icon: Icons.check_circle,
+                    backgroundColor: AppConstants.successColor,
+                    iconColor: Colors.white,
                   );
                 }
               },

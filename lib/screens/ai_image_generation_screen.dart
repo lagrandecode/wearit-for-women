@@ -10,6 +10,7 @@ import 'package:image_gallery_saver/image_gallery_saver.dart';
 import '../services/openai_service.dart';
 import '../utils/haptic_feedback_helper.dart';
 import '../widgets/shimmer_loading.dart';
+import '../widgets/floating_message.dart';
 import '../constants/app_constants.dart';
 
 class AIImageGenerationScreen extends StatefulWidget {
@@ -146,14 +147,12 @@ class _AIImageGenerationScreenState extends State<AIImageGenerationScreen> {
 
       if (mounted) {
         if (result['isSuccess'] == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Image saved to photo library!',
-                style: GoogleFonts.spaceGrotesk(),
-              ),
-              backgroundColor: Colors.green,
-            ),
+          FloatingMessage.show(
+            context,
+            message: 'Image saved to photo library!',
+            icon: Icons.check_circle,
+            backgroundColor: AppConstants.successColor,
+            iconColor: Colors.white,
           );
           HapticFeedbackHelper.mediumImpact();
         } else {
@@ -162,14 +161,12 @@ class _AIImageGenerationScreenState extends State<AIImageGenerationScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Failed to save image: $e',
-              style: GoogleFonts.spaceGrotesk(),
-            ),
-            backgroundColor: Colors.red,
-          ),
+        FloatingMessage.show(
+          context,
+          message: 'Failed to save image: ${e.toString().replaceAll('Exception: ', '')}',
+          icon: Icons.error_outline,
+          backgroundColor: Colors.red,
+          iconColor: Colors.white,
         );
         HapticFeedbackHelper.heavyImpact();
       }
@@ -221,15 +218,13 @@ class _AIImageGenerationScreenState extends State<AIImageGenerationScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
+        FloatingMessage.show(
+          context,
+          message:
               'Failed to share image: ${e.toString().replaceAll('Exception: ', '').replaceAll('PlatformException: ', '')}',
-              style: GoogleFonts.spaceGrotesk(),
-            ),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          ),
+          icon: Icons.error_outline,
+          backgroundColor: Colors.red,
+          iconColor: Colors.white,
         );
         HapticFeedbackHelper.heavyImpact();
       }
